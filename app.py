@@ -78,15 +78,18 @@ def showdata(message):
 
 @bot.message_handler(commands=['setdebt'])
 def setdebt(message):
-    userName = message.from_user.username
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("✅ Так")
-    item2 = types.KeyboardButton("⛔ Ні")
-    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
-    markup.row(item1, item2)
-    markup.row(item3)
-    msg = bot.reply_to(message, 'Усі люди скидались?', reply_markup=markup)
-    bot.register_next_step_handler(msg, responsesum, userName)
+    if CheckUser(message.from_user.id, message.chat.id):
+        userName = message.from_user.username
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        item1 = types.KeyboardButton("✅ Так")
+        item2 = types.KeyboardButton("⛔ Ні")
+        item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+        markup.row(item1, item2)
+        markup.row(item3)
+        msg = bot.reply_to(message, 'Усі люди скидались?', reply_markup=markup)
+        bot.register_next_step_handler(msg, responsesum, userName)
+    else:
+        bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty')
 
 
 @bot.message_handler(commands=['removedebt'])
@@ -190,25 +193,31 @@ def removeExactDebt(message, userName, PersonId):
 
 @bot.message_handler(commands=['addcards'])
 def addcards(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
-    markup.row(item3)
-    userName = message.from_user.username
-    msg = bot.reply_to(message, 'Впишіть ваші реквізити', reply_markup=markup)
-    bot.register_next_step_handler(msg, addcardtodb, userName)
+    if CheckUser(message.from_user.id, message.chat.id):
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+        markup.row(item3)
+        userName = message.from_user.username
+        msg = bot.reply_to(message, 'Впишіть ваші реквізити', reply_markup=markup)
+        bot.register_next_step_handler(msg, addcardtodb, userName)
+    else:
+        bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty')
 
 
 @bot.message_handler(commands=['deletecards'])
 def deletecards(message):
-    userName = message.from_user.username
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("✅ Так")
-    item2 = types.KeyboardButton("⛔ Ні")
-    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
-    markup.row(item1, item2)
-    markup.row(item3)
-    msg = bot.reply_to(message, 'Видалити ваші реквізити?', reply_markup=markup)
-    bot.register_next_step_handler(msg, deletecard, userName)
+    if CheckUser(message.from_user.id, message.chat.id):
+        userName = message.from_user.username
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        item1 = types.KeyboardButton("✅ Так")
+        item2 = types.KeyboardButton("⛔ Ні")
+        item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+        markup.row(item1, item2)
+        markup.row(item3)
+        msg = bot.reply_to(message, 'Видалити ваші реквізити?', reply_markup=markup)
+        bot.register_next_step_handler(msg, deletecard, userName)
+    else:
+        bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty')
 
 
 def deletecard(message, userName):
@@ -551,7 +560,7 @@ def handle_list_sum(message, listperson, userName):
                        continueController = False
                        msg = bot.reply_to(message,
                                           'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
-                       bot.register_next_step_handler(msg, handle_list_sum, userName)
+                       bot.register_next_step_handler(msg, handle_list_sum, listperson, userName)
                     if continueController:
                         msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
                         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -633,7 +642,7 @@ def handle_list_sum_for_one(message, listperson, userName):
                     continueController = False
                     msg = bot.reply_to(message,
                                        'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
-                    bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
+                    bot.register_next_step_handler(msg, handle_list_sum_for_one, listperson, userName)
                     break
                 else:
                     continueController = True
@@ -656,7 +665,7 @@ def handle_list_sum_for_one(message, listperson, userName):
                                 continueController = False
                                 msg = bot.reply_to(message,
                                                    'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
-                                bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
+                                bot.register_next_step_handler(msg, handle_list_sum_for_one, listperson, userName)
                                 break
                         i = i + 1
                     if continueController:
