@@ -661,7 +661,8 @@ def handle_list_sum_for_one(message, listperson, userName):
                             break
                         else:
                             try:
-                                AddDebtForOne(message.from_user.id, message.chat.id, listsum[i],
+                                print("Listsum[i]" + str(float(listsum[i])))
+                                AddDebtForOne(message.from_user.id, message.chat.id, float(listsum[i]),
                                               getUserIdByUserName(listperson[i]))
                             except:
                                 continueController = False
