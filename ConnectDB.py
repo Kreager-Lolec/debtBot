@@ -252,6 +252,7 @@ def AddDebtForGroupNotAll(PersonId,ChatId,DebtValue,listPerson):
 
 
 def AddDebtForOne(PayerId,ChatId,DebtValue,PersonId):
+    DebtValue = str(DebtValue).replace(",",".")
     mycursor = mydb.cursor()
     mycursor.execute(f'''
                     SELECT * FROM PERSONS
@@ -263,7 +264,8 @@ def AddDebtForOne(PayerId,ChatId,DebtValue,PersonId):
             break
     if not PayerId == PersonId:
         print("PersonId: " + str(PersonId))
-        AddDebt(UserNamePayer, PersonId, ChatId, DebtValue)
+        print(DebtValue)
+        AddDebt(UserNamePayer, PersonId, ChatId, float(DebtValue))
 
 
 def AddDebt(PayerUserName,PersonId,ChatId,DebtValue):
