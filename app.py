@@ -82,7 +82,9 @@ def setdebt(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton("✅ Так")
     item2 = types.KeyboardButton("⛔ Ні")
+    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
     markup.row(item1, item2)
+    markup.row(item3)
     msg = bot.reply_to(message, 'Усі люди скидались?', reply_markup=markup)
     bot.register_next_step_handler(msg, responsesum, userName)
 
@@ -90,8 +92,11 @@ def setdebt(message):
 @bot.message_handler(commands=['removedebt'])
 def removedebt(message):
     if CheckUser(message.from_user.id, message.chat.id):
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+        markup.row(item3)
         userName = message.from_user.username
-        msg = bot.reply_to(message, 'Кому ви хочете видалити борг? (Введіть нікнейм з допомогою @) ')
+        msg = bot.reply_to(message, 'Кому ви хочете видалити борг? (Введіть нікнейм з допомогою @) ', reply_markup=markup)
         bot.register_next_step_handler(msg, responseRemoveDebt, userName)
     else:
         bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty')
@@ -99,26 +104,31 @@ def removedebt(message):
 
 def responseRemoveDebt(message, userName):
     if message.from_user.username == userName:
-        PersonUserName = message.text
-        PersonUserName = str(PersonUserName).replace("@", '')
-        PersonUserName = str(PersonUserName).replace(" ", '')
-        if not userName == PersonUserName:
-            if checkIfPersonHaveDebtFromPayer(PersonUserName, message.chat.id, userName):
-                PersonId = getUserIdByUserName(PersonUserName)
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                item1 = types.KeyboardButton("💰 Повну суму")
-                item2 = types.KeyboardButton("💵 Конкретну")
-                markup.row(item1, item2)
-                msg = bot.reply_to(message, 'Видалити весь борг чи конкретну суму?', reply_markup=markup)
-                bot.register_next_step_handler(msg, choiceDelete, userName, PersonId)
+        if message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
+        else:
+            PersonUserName = message.text
+            PersonUserName = str(PersonUserName).replace("@", '')
+            PersonUserName = str(PersonUserName).replace(" ", '')
+            if not userName == PersonUserName:
+                if checkIfPersonHaveDebtFromPayer(PersonUserName, message.chat.id, userName):
+                    PersonId = getUserIdByUserName(PersonUserName)
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    item1 = types.KeyboardButton("💰 Повну суму")
+                    item2 = types.KeyboardButton("💵 Конкретну")
+                    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                    markup.row(item1, item2)
+                    markup.row(item3)
+                    msg = bot.reply_to(message, 'Видалити весь борг чи конкретну суму?', reply_markup=markup)
+                    bot.register_next_step_handler(msg, choiceDelete, userName, PersonId)
+                else:
+                    msg = bot.reply_to(message,
+                                       'Користувач, якому ви хочете видалити борг, не є у вашому патті, або він вам нічого не був винен. Спробуйте ще раз')
+                    bot.register_next_step_handler(msg, responseRemoveDebt, userName)
             else:
                 msg = bot.reply_to(message,
-                                   'Користувач, якому ви хочете видалити борг, не є у вашому патті, або він вам нічого не був винен. Спробуйте ще раз')
+                                   'Видаляти самому собі борг - не найкраща ідея. Спробуйте ще раз')
                 bot.register_next_step_handler(msg, responseRemoveDebt, userName)
-        else:
-            msg = bot.reply_to(message,
-                               'Видаляти самому собі борг - не найкраща ідея. Спробуйте ще раз')
-            bot.register_next_step_handler(msg, responseRemoveDebt, userName)
     else:
         msg = bot.reply_to(message, 'Індульгенцію на видалення має @' + userName)
         bot.register_next_step_handler(msg, responseRemoveDebt, userName)
@@ -133,8 +143,15 @@ def choiceDelete(message, userName, PersonId):
                 RemoveDebt(PersonId, message.chat.id, userName)
                 msg = bot.reply_to(message, 'Борг успішно видалено', reply_markup=types.ReplyKeyboardRemove())
         elif message.text == "💵 Конкретну":
-            msg = bot.reply_to(message, 'Введіть суму, яку хочете списати з боргу.', reply_markup=types.ReplyKeyboardRemove())
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+            markup.row(item3)
+            msg = bot.reply_to(message, 'Введіть суму, яку хочете списати з боргу.', reply_markup=markup)
             bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
+        elif message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
+        else:
+            bot.register_next_step_handler(message, choiceDelete, userName, PersonId)
     else:
         msg = bot.reply_to(message, 'Індульгенцію на видалення має @' + userName)
         bot.register_next_step_handler(msg, choiceDelete, userName, PersonId)
@@ -142,21 +159,25 @@ def choiceDelete(message, userName, PersonId):
 
 def removeExactDebt(message, userName, PersonId):
     if message.from_user.username == userName:
-        if checkValidationString(message.text)[0]:
-            debtValue = float(checkValidationString(message.text)[1])
-            if CheckIfZeroDebt(PersonId, message.chat.id, userName):
-                msg = bot.reply_to(message, 'Ви і так витрясли все з нього!', reply_markup=types.ReplyKeyboardRemove())
-            elif CheckMinusDebt(PersonId, message.chat.id, debtValue, userName):
-                msg = bot.reply_to(message,
-                                   'Воу-воу, ви хочете видалити більше, чим вам винні. Введіть суму ще раз, яку хочете списати з боргу.')
-                bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
-            else:
-                RemoveExactDebt(PersonId, message.chat.id, debtValue, userName)
-                msg = bot.reply_to(message, 'Борг успішно відняно.')
+        if message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
-            msg = bot.reply_to(message,
-                           'Значення повинно містити лише цифри (без пробілів) (У разі додавання (числа до мільйона) ще знак "+"), введіть значення боргу ще раз')
-            bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
+            if checkValidationString(message.text)[0]:
+                debtValue = float(checkValidationString(message.text)[1])
+                if CheckIfZeroDebt(PersonId, message.chat.id, userName):
+                    msg = bot.reply_to(message, 'Ви і так витрясли все з нього!',
+                                       reply_markup=types.ReplyKeyboardRemove())
+                elif CheckMinusDebt(PersonId, message.chat.id, debtValue, userName):
+                    msg = bot.reply_to(message,
+                                       'Воу-воу, ви хочете видалити більше, чим вам винні. Введіть суму ще раз, яку хочете списати з боргу.')
+                    bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
+                else:
+                    RemoveExactDebt(PersonId, message.chat.id, debtValue, userName)
+                    msg = bot.reply_to(message, 'Борг успішно відняно.', reply_markup=types.ReplyKeyboardRemove())
+            else:
+                msg = bot.reply_to(message,
+                                   'Значення повинно містити лише цифри (без пробілів) (У разі додавання (числа до мільйона) ще знак "+"), введіть значення боргу ще раз')
+                bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
     else:
         msg = bot.reply_to(message, 'Індульгенцію на видалення має @' + userName + " Просимо його ввести суму, яку потрібно списати з боргу.")
         bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
@@ -164,8 +185,11 @@ def removeExactDebt(message, userName, PersonId):
 
 @bot.message_handler(commands=['addcards'])
 def addcards(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+    markup.row(item3)
     userName = message.from_user.username
-    msg = bot.reply_to(message, 'Впишіть ваші реквізити')
+    msg = bot.reply_to(message, 'Впишіть ваші реквізити', reply_markup=markup)
     bot.register_next_step_handler(msg, addcardtodb, userName)
 
 
@@ -175,7 +199,9 @@ def deletecards(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton("✅ Так")
     item2 = types.KeyboardButton("⛔ Ні")
+    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
     markup.row(item1, item2)
+    markup.row(item3)
     msg = bot.reply_to(message, 'Видалити ваші реквізити?', reply_markup=markup)
     bot.register_next_step_handler(msg, deletecard, userName)
 
@@ -194,6 +220,8 @@ def deletecard(message, userName):
                              reply_markup=types.ReplyKeyboardRemove())
         elif message.text == "⛔ Ні":
             bot.reply_to(message, f'Гарного дня вам!', reply_markup=types.ReplyKeyboardRemove())
+        elif message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, deletecard, userName)
     else:
@@ -203,35 +231,40 @@ def deletecard(message, userName):
 
 def addcardtodb(message, userName):
     if message.from_user.username == userName:
-        regex = re.compile('[a-zA-Zа-яА-Я].+[:]\\d{4}\\d{4}\\d{4}\\d{4}$')
-        fullstring = str(message.text).replace(" ", "")
-        match = regex.match(fullstring)
-        print(match)
-        if match is None:
-            msg = bot.reply_to(message,
-                               'Не коректний запис. Приклад: Моно : 9898 8475 3984 4895 (Можна додати лише один '
-                               'реквізит за раз). Спробуйте ще раз')
-            bot.register_next_step_handler(msg, addcardtodb, userName)
+        if message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
-            if CheckUser(message.from_user.id, message.chat.id):
-                if CheckCardPersonsDoubleInfo(message.from_user.id, message.chat.id, message.text):
-                    msg = bot.reply_to(message,
-                                       f'\t\t\tДані реквізити вже існують у іншої людини, спробуйте додати іншу картку')
-                    bot.register_next_step_handler(msg, addcardtodb, userName)
-                elif CheckCardDoubleInfo(message.from_user.id, message.chat.id, message.text):
-                    msg = bot.reply_to(message, f'\t\t\tДані реквізити вже існують, спробуйте додати іншу картку')
-                    bot.register_next_step_handler(msg, addcardtodb, userName)
-                else:
-                    AddCard(message.chat.id, message.from_user.id, message.text)
-                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                    item1 = types.KeyboardButton("✅ Так")
-                    item2 = types.KeyboardButton("⛔ Ні")
-                    markup.row(item1, item2)
-                    msg = bot.reply_to(message, 'Хочете додати ще одну картку?', reply_markup=markup)
-                    bot.register_next_step_handler(msg, responsecard, userName)
+            regex = re.compile('[a-zA-Zа-яА-Я].+[:]\\d{4}\\d{4}\\d{4}\\d{4}$')
+            fullstring = str(message.text).replace(" ", "")
+            match = regex.match(fullstring)
+            print(match)
+            if match is None:
+                msg = bot.reply_to(message,
+                                   'Не коректний запис. Приклад: Моно : 9898 8475 3984 4895 (Можна додати лише один '
+                                   'реквізит за раз). Спробуйте ще раз')
+                bot.register_next_step_handler(msg, addcardtodb, userName)
             else:
-                bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty',
-                             reply_markup=types.ReplyKeyboardRemove())
+                if CheckUser(message.from_user.id, message.chat.id):
+                    if CheckCardPersonsDoubleInfo(message.from_user.id, message.chat.id, message.text):
+                        msg = bot.reply_to(message,
+                                           f'\t\t\tДані реквізити вже існують у іншої людини, спробуйте додати іншу картку')
+                        bot.register_next_step_handler(msg, addcardtodb, userName)
+                    elif CheckCardDoubleInfo(message.from_user.id, message.chat.id, message.text):
+                        msg = bot.reply_to(message, f'\t\t\tДані реквізити вже існують, спробуйте додати іншу картку')
+                        bot.register_next_step_handler(msg, addcardtodb, userName)
+                    else:
+                        AddCard(message.chat.id, message.from_user.id, message.text)
+                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                        item1 = types.KeyboardButton("✅ Так")
+                        item2 = types.KeyboardButton("⛔ Ні")
+                        item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                        markup.row(item1, item2)
+                        markup.row(item3)
+                        msg = bot.reply_to(message, 'Хочете додати ще одну картку?', reply_markup=markup)
+                        bot.register_next_step_handler(msg, responsecard, userName)
+                else:
+                    bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty',
+                                 reply_markup=types.ReplyKeyboardRemove())
     else:
         msg = bot.reply_to(message, 'Тільки @' + userName + " має право надіслати свої реквізити.")
         bot.register_next_step_handler(msg, addcardtodb, userName)
@@ -240,12 +273,17 @@ def addcardtodb(message, userName):
 def responsecard(message, userName):
     if message.from_user.username == userName:
         if message.text == "✅ Так":
-            msg = bot.reply_to(message, 'Впишіть ваші реквізити', reply_markup=types.ReplyKeyboardRemove())
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+            markup.row(item3)
+            msg = bot.reply_to(message, 'Впишіть ваші реквізити', reply_markup=markup)
             bot.register_next_step_handler(msg, addcardtodb, userName)
             print(msg.text)
         elif message.text == "⛔ Ні":
             bot.reply_to(message, f'\t\t\tРеквізити додано' + '\n' + ShowData(message),
                          reply_markup=types.ReplyKeyboardRemove())
+        elif message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, responsecard, userName)
     else:
@@ -256,16 +294,23 @@ def responsecard(message, userName):
 def responsesum(message, userName):
     if message.from_user.username == userName:
         if message.text == "✅ Так":
-            msg = bot.reply_to(message, 'Впишіть суму', reply_markup=types.ReplyKeyboardRemove())
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+            markup.row(item3)
+            msg = bot.reply_to(message, 'Впишіть суму', reply_markup=markup)
             bot.register_next_step_handler(msg, add_sum, userName)
             print(msg.text)
         elif message.text == "⛔ Ні":
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = types.KeyboardButton("✅ Так")
             item2 = types.KeyboardButton("⛔ Ні")
+            item3 = types.KeyboardButton("🛑 Відмінити операцію?")
             markup.row(item1, item2)
+            markup.row(item3)
             msg = bot.reply_to(message, 'Скидались не всі, але більше чим одна людина?', reply_markup=markup)
             bot.register_next_step_handler(msg, response_sum_exact, userName)
+        elif message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, responsesum, userName)
     else:
@@ -363,27 +408,33 @@ def checkValidationString(message):
 
 def add_sum(message, userName):
     if message.from_user.username == userName:
-        list = checkValidationString(message.text)
-        if not list[0]:
-            msg = bot.reply_to(message,
-                               'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
-            bot.register_next_step_handler(msg, add_sum, userName)
+        if message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
-            if not CheckLoneLinnes(message.from_user.id, message.chat.id):
-                AddDebtForAll(message.from_user.id, message.chat.id, float(list[1]))
-                msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                item1 = types.KeyboardButton("✅ Так")
-                item2 = types.KeyboardButton("⛔ Ні")
-                markup.row(item1, item2)
-                msg = bot.reply_to(message, 'Скидались не всі, але більше чим одна людина?', reply_markup=markup)
-                bot.register_next_step_handler(msg, response_sum_exact, userName)
-            elif CheckLoneLinnes(message.from_user.id,
-                                 message.chat.id) == "Ти скидаєшся сам з собою, знайди собі друзів":
-                bot.reply_to(message, 'Ти скидаєшся сам з собою, знайди собі друзів')
-            elif CheckLoneLinnes(message.from_user.id,
-                                 message.chat.id) == "Для початку увійдіть в гільдію: команда /entertheparty":
-                bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty')
+            list = checkValidationString(message.text)
+            if not list[0]:
+                msg = bot.reply_to(message,
+                                   'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
+                bot.register_next_step_handler(msg, add_sum, userName)
+            else:
+                if not CheckLoneLinnes(message.from_user.id, message.chat.id):
+                    AddDebtForAll(message.from_user.id, message.chat.id, float(list[1]))
+                    msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    item1 = types.KeyboardButton("✅ Так")
+                    item2 = types.KeyboardButton("⛔ Ні")
+                    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                    markup.row(item1, item2)
+                    markup.row(item3)
+                    msg = bot.reply_to(message, 'Скидались не всі, але більше чим одна людина?', reply_markup=markup)
+                    bot.register_next_step_handler(msg, response_sum_exact, userName)
+                elif CheckLoneLinnes(message.from_user.id,
+                                     message.chat.id) == "Ти скидаєшся сам з собою, знайди собі друзів":
+                    bot.reply_to(message, 'Ти скидаєшся сам з собою, знайди собі друзів')
+                elif CheckLoneLinnes(message.from_user.id,
+                                     message.chat.id) == "Для початку увійдіть в гільдію: команда /entertheparty":
+                    bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty',
+                                 reply_markup=types.ReplyKeyboardRemove())
     else:
         msg = bot.reply_to(message, 'Індульгенцію на ввід суми має лише @' + userName + ". Просимо його зробите це.")
         bot.register_next_step_handler(msg, add_sum, userName)
@@ -392,6 +443,9 @@ def add_sum(message, userName):
 def response_sum_exact(message, userName):
     if message.from_user.username == userName:
         if message.text == "✅ Так":
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+            markup.row(item3)
             msg = bot.reply_to(message, 'Впишіть людей, які скидались через знак "/"',
                                reply_markup=types.ReplyKeyboardRemove())
             msg_content = str(msg.text).replace(" ", "/")
@@ -402,9 +456,13 @@ def response_sum_exact(message, userName):
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = types.KeyboardButton("✅ Так")
             item2 = types.KeyboardButton("⛔ Ні")
+            item3 = types.KeyboardButton("🛑 Відмінити операцію?")
             markup.row(item1, item2)
+            markup.row(item3)
             msg = bot.reply_to(message, 'Ви оплачували людям окремі товари?', reply_markup=markup)
             bot.register_next_step_handler(msg, response_sum_one, userName)
+        elif message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, response_sum_exact, userName)
     else:
@@ -414,20 +472,26 @@ def response_sum_exact(message, userName):
 
 def handle_list_person(message, userName):
     if message.from_user.username == userName:
-        # msg = bot.reply_to(message, 'Впишіть відповідні суми для кожної людини через пробіл або знак "/"',
-        #                    reply_markup=types.ReplyKeyboardRemove())
-        msg_content = str(message.text).replace(" ", "/")
-        msg_content = msg_content.replace("@", "")
-        listperson = str(msg_content).split("/")
-        list = checkIfPersonsExist(listperson, message)
-        if list[0]:
-            msg = bot.reply_to(message, 'Впишіть суму, на яку ці люди скинулись',
-                               reply_markup=types.ReplyKeyboardRemove())
-            bot.register_next_step_handler(msg, handle_list_sum, listperson, userName)
+        if message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
-            msg = bot.reply_to(message,
-                               list[1] + ' не входять у патті або не існують, спробуйте ще раз')
-            bot.register_next_step_handler(msg, handle_list_person, userName)
+            # msg = bot.reply_to(message, 'Впишіть відповідні суми для кожної людини через пробіл або знак "/"',
+            #                    reply_markup=types.ReplyKeyboardRemove())
+            msg_content = str(message.text).replace(" ", "/")
+            msg_content = msg_content.replace("@", "")
+            listperson = str(msg_content).split("/")
+            list = checkIfPersonsExist(listperson, message)
+            if list[0]:
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                markup.row(item3)
+                msg = bot.reply_to(message, 'Впишіть суму, на яку ці люди скинулись',
+                                   reply_markup=markup)
+                bot.register_next_step_handler(msg, handle_list_sum, listperson, userName)
+            else:
+                msg = bot.reply_to(message,
+                                   list[1] + ' не входять у патті або не існують, спробуйте ще раз')
+                bot.register_next_step_handler(msg, handle_list_person, userName)
     else:
         msg = bot.reply_to(message, 'Індульгенцію на відповідь має лише @' + userName + ". Впишіть людей, які скидались через знак '/'")
         bot.register_next_step_handler(msg, handle_list_person, userName)
@@ -451,26 +515,31 @@ def checkIfPersonsExist(listperson, message):
 
 def handle_list_sum(message, listperson, userName):
     if message.from_user.username == userName:
-        list = checkValidationString(message.text)
-        if not list[0]:
-            msg = bot.reply_to(message,
-                               'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
-            bot.register_next_step_handler(msg, handle_list_sum, userName)
+        if message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
-            i = 0
-            if len(listperson) == 1 and message.from_user.id == getUserIdByUserName(listperson[0]):
+            list = checkValidationString(message.text)
+            if not list[0]:
                 msg = bot.reply_to(message,
-                                       'Нахріна ти сам собі борг додаєш? У даному випадку тобі винні гроші. Спробуй ще раз')
-                bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
+                                   'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
+                bot.register_next_step_handler(msg, handle_list_sum, userName)
             else:
-                AddDebtForGroupNotAll(message.from_user.id, message.chat.id, list[1], listperson)
-                msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                item1 = types.KeyboardButton("✅ Так")
-                item2 = types.KeyboardButton("⛔ Ні")
-                markup.row(item1, item2)
-                msg = bot.reply_to(message, 'Людина брала окремий товар?', reply_markup=markup)
-                bot.register_next_step_handler(msg, response_sum_one, userName)
+                i = 0
+                if len(listperson) == 1 and message.from_user.id == getUserIdByUserName(listperson[0]):
+                    msg = bot.reply_to(message,
+                                           'Нахріна ти сам собі борг додаєш? У даному випадку тобі винні гроші. Спробуй ще раз')
+                    bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
+                else:
+                    AddDebtForGroupNotAll(message.from_user.id, message.chat.id, list[1], listperson)
+                    msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    item1 = types.KeyboardButton("✅ Так")
+                    item2 = types.KeyboardButton("⛔ Ні")
+                    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                    markup.row(item1, item2)
+                    markup.row(item3)
+                    msg = bot.reply_to(message, 'Людина брала окремий товар?', reply_markup=markup)
+                    bot.register_next_step_handler(msg, response_sum_one, userName)
     else:
         msg = bot.reply_to(message,
                            'Індульгенцію на відповідь має лише @' + userName + ". Впишіть суму, на яку скидались люди")
@@ -480,6 +549,9 @@ def handle_list_sum(message, listperson, userName):
 def response_sum_one(message, userName):
     if message.from_user.username == userName:
         if message.text == "✅ Так":
+            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+            markup.row(item3)
             msg = bot.reply_to(message, 'Впишіть людей, які скидались через знак "/"',
                                reply_markup=types.ReplyKeyboardRemove())
             msg_content = str(msg.text).replace(" ", "/")
@@ -488,6 +560,8 @@ def response_sum_one(message, userName):
             bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
         elif message.text == "⛔ Ні":
             msg = bot.reply_to(message, 'Хорошо дня вам!', reply_markup=types.ReplyKeyboardRemove())
+        elif message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, response_sum_one, userName)
     else:
@@ -497,20 +571,26 @@ def response_sum_one(message, userName):
 
 def handle_list_person_for_one(message, userName):
     if message.from_user.username == userName:
-        # msg = bot.reply_to(message, 'Впишіть відповідні суми для кожної людини з допомогою знаку "/"',
-        #                    reply_markup=types.ReplyKeyboardRemove())
-        msg_content = str(message.text).replace(" ", "/")
-        msg_content = msg_content.replace("@", "")
-        listperson = str(msg_content).split("/")
-        list = checkIfPersonsExist(listperson, message)
-        if list[0]:
-            msg = bot.reply_to(message, 'Впишіть відповідні суми для кожної людини з допомогою знаку "/"',
-                               reply_markup=types.ReplyKeyboardRemove())
-            bot.register_next_step_handler(msg, handle_list_sum_for_one, listperson, userName)
+        if message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
-            msg = bot.reply_to(message,
-                               list[1] + ' не входять у патті або не існують, спробуйте ще раз')
-            bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
+            # msg = bot.reply_to(message, 'Впишіть відповідні суми для кожної людини з допомогою знаку "/"',
+            #                    reply_markup=types.ReplyKeyboardRemove())
+            msg_content = str(message.text).replace(" ", "/")
+            msg_content = msg_content.replace("@", "")
+            listperson = str(msg_content).split("/")
+            list = checkIfPersonsExist(listperson, message)
+            if list[0]:
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                markup.row(item3)
+                msg = bot.reply_to(message, 'Впишіть відповідні суми для кожної людини з допомогою знаку "/"',
+                                   reply_markup=markup)
+                bot.register_next_step_handler(msg, handle_list_sum_for_one, listperson, userName)
+            else:
+                msg = bot.reply_to(message,
+                                   list[1] + ' не входять у патті або не існують, спробуйте ще раз')
+                bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
     else:
         msg = bot.reply_to(message, 'Індульгенцію на відповідь має лише @' + userName + ". Впишіть людей, які скидались через знак '/'")
         bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
@@ -519,51 +599,64 @@ def handle_list_person_for_one(message, userName):
 def handle_list_sum_for_one(message, listperson, userName):
     continueController = False
     if message.from_user.username == userName:
-        listsum = str(message.text).strip(" ")
-        listsum = str(listsum).split("/")
-        print(listsum)
-        for row in listsum:
-            list = checkValidationString(row)
-            if not list[0]:
-                continueController = False
-                msg = bot.reply_to(message,
-                                   'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
-                bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
-                break
-            else:
-                continueController = True
-                continue
-        if continueController:
-            if len(listperson) == len(listsum):
-                i = 0
-                while i < len(listperson):
-                    if len(listperson) == 1 and message.from_user.id == getUserIdByUserName(listperson[i]):
-                        continueController = False
-                        msg = bot.reply_to(message,
-                                           'Нахріна ти сам собі борг додаєш? У даному випадку тобі винні гроші. Спробуй ще раз')
-                        bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
-                        break
-                    else:
-                        AddDebtForOne(message.from_user.id, message.chat.id, listsum[i],
-                                      getUserIdByUserName(listperson[i]))
-                    i = i + 1
-                if continueController:
-                    msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
-                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                    item1 = types.KeyboardButton("✅ Так")
-                    item2 = types.KeyboardButton("⛔ Ні")
-                    markup.row(item1, item2)
-                    msg = bot.reply_to(message, 'Можливо потрібно вписати ще когось?', reply_markup=markup)
-                    bot.register_next_step_handler(msg, response_sum_one, userName)
-            else:
-                msg = bot.reply_to(message,
-                                   'Кількість людей та відповідних сум повинна бути однаковою, спробуйте ще раз. Впишіть людей, які скидались через знак "/".')
-                bot.register_next_step_handler(msg, handle_list_sum_for_one, listperson, userName)
+        if message.text == "🛑 Відмінити операцію?":
+            bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
+        else:
+            listsum = str(message.text).strip(" ")
+            listsum = str(listsum).split("/")
+            print(listsum)
+            for row in listsum:
+                list = checkValidationString(row)
+                if not list[0]:
+                    continueController = False
+                    msg = bot.reply_to(message,
+                                       'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
+                    bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
+                    break
+                else:
+                    continueController = True
+                    continue
+            if continueController:
+                if len(listperson) == len(listsum):
+                    i = 0
+                    while i < len(listperson):
+                        if len(listperson) == 1 and message.from_user.id == getUserIdByUserName(listperson[i]):
+                            continueController = False
+                            msg = bot.reply_to(message,
+                                               'Нахріна ти сам собі борг додаєш? У даному випадку тобі винні гроші. Спробуй ще раз')
+                            bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
+                            break
+                        else:
+                            AddDebtForOne(message.from_user.id, message.chat.id, listsum[i],
+                                          getUserIdByUserName(listperson[i]))
+                        i = i + 1
+                    if continueController:
+                        msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
+                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                        item1 = types.KeyboardButton("✅ Так")
+                        item2 = types.KeyboardButton("⛔ Ні")
+                        item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                        markup.row(item1, item2)
+                        markup.row(item3)
+                        msg = bot.reply_to(message, 'Можливо потрібно вписати ще когось?', reply_markup=markup)
+                        bot.register_next_step_handler(msg, response_sum_one, userName)
+                else:
+                    msg = bot.reply_to(message,
+                                       'Кількість людей та відповідних сум повинна бути однаковою, спробуйте ще раз. Впишіть людей, які скидались через знак "/".')
+                    bot.register_next_step_handler(msg, handle_list_sum_for_one, listperson, userName)
     else:
         msg = bot.reply_to(message,
                            'Індульгенцію на відповідь має лише @' + userName + ". Впишіть суму, на яку скидались люди")
         bot.register_next_step_handler(msg, handle_list_sum_for_one, listperson, userName)
 
+
+# def stop(message, userName):
+#     if message.from_user.username == userName:
+#         msg = bot.reply_to(message, '' ,reply_markup = types.ReplyKeyboardRemove())
+#     else:
+#         msg = bot.reply_to(message,
+#                            'Індульгенцію на скасування операції має лише @' + userName)
+#         bot.register_next_step_handler(msg, stop, userName)
 
 # def add_division(message, userName):
 #     bot.reply_to(message, f'Іди нахрін')
