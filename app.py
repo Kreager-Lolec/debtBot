@@ -403,6 +403,7 @@ def checkValidationString(message):
         fullstring = str(message)
         fullstring = fullstring.strip(" ")
         fullstring = fullstring.replace(",",".")
+        print(fullstring)
         if " " in fullstring:
             match = None
         else:
