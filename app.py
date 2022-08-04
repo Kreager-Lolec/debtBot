@@ -430,7 +430,7 @@ def add_sum(message, userName):
                     bot.register_next_step_handler(msg, response_sum_exact, userName)
                 elif CheckLoneLinnes(message.from_user.id,
                                      message.chat.id) == "Ти скидаєшся сам з собою, знайди собі друзів":
-                    bot.reply_to(message, 'Ти скидаєшся сам з собою, знайди собі друзів')
+                    bot.reply_to(message, 'Ти скидаєшся сам з собою, знайди собі друзів', reply_markup=types.ReplyKeyboardRemove())
                 elif CheckLoneLinnes(message.from_user.id,
                                      message.chat.id) == "Для початку увійдіть в гільдію: команда /entertheparty":
                     bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty',
