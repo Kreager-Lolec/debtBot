@@ -268,17 +268,22 @@ def AddDebtForOne(PayerId,ChatId,DebtValue,PersonId):
 
 def AddDebt(PayerUserName,PersonId,ChatId,DebtValue):
     mycursor = mydb.cursor()
-    insert_query_debt = f'''INSERT INTO DEBTS (DebtValue, PersonId , ChatId, PayerUserName)
-    SELECT {DebtValue}, {PersonId}, {ChatId}, '{PayerUserName}'
-    WHERE NOT EXISTS ( SELECT * FROM DEBTS WHERE ChatId = {ChatId} AND PersonId = {PersonId} AND PayerUserName = N'{PayerUserName}') '''
-    mycursor.execute(insert_query_debt)
-    mydb.commit()
-    mycursor.execute(f'''SELECT DebtValue FROM DEBTS WHERE PersonId = {PersonId} AND ChatId = {ChatId} AND PayerUserName = N'{PayerUserName}' ''')
-    DebtValue = mycursor.fetchone()[0] + float(DebtValue)
-    mycursor.execute(f'''UPDATE DEBTS
-    SET DebtValue = {DebtValue}
-    WHERE PersonId = {PersonId} AND ChatId = {ChatId} AND PayerUserName = N'{PayerUserName}' ''')
-    mydb.commit()
+    mycursor.execute(f'''SELECT COUNT(*) FROM DEBTS WHERE ChatId = {ChatId} AND PersonId = {PersonId} AND PayerUserName = N'{PayerUserName}' ''')
+    count = mycursor.fetchone()[0]
+    if count == 0:
+        insert_query_debt = f'''INSERT INTO DEBTS (DebtValue, PersonId , ChatId, PayerUserName)
+        SELECT {DebtValue}, {PersonId}, {ChatId}, '{PayerUserName}'
+        WHERE NOT EXISTS ( SELECT * FROM DEBTS WHERE ChatId = {ChatId} AND PersonId = {PersonId} AND PayerUserName = N'{PayerUserName}') '''
+        mycursor.execute(insert_query_debt)
+        mydb.commit()
+    else:
+        mycursor.execute(
+            f'''SELECT DebtValue FROM DEBTS WHERE PersonId = {PersonId} AND ChatId = {ChatId} AND PayerUserName = N'{PayerUserName}' ''')
+        DebtValue = mycursor.fetchone()[0] + float(DebtValue)
+        mycursor.execute(f'''UPDATE DEBTS
+        SET DebtValue = {DebtValue}
+        WHERE PersonId = {PersonId} AND ChatId = {ChatId} AND PayerUserName = N'{PayerUserName}' ''')
+        mydb.commit()
     mycursor.close()
 
 
