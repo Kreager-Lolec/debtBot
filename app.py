@@ -163,17 +163,22 @@ def removeExactDebt(message, userName, PersonId):
             bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
         else:
             if checkValidationString(message.text)[0]:
-                debtValue = float(checkValidationString(message.text)[1])
-                if CheckIfZeroDebt(PersonId, message.chat.id, userName):
-                    msg = bot.reply_to(message, 'Ви і так витрясли все з нього!',
-                                       reply_markup=types.ReplyKeyboardRemove())
-                elif CheckMinusDebt(PersonId, message.chat.id, debtValue, userName):
+                try:
+                    debtValue = float(checkValidationString(message.text)[1])
+                    if CheckIfZeroDebt(PersonId, message.chat.id, userName):
+                        msg = bot.reply_to(message, 'Ви і так витрясли все з нього!',
+                                           reply_markup=types.ReplyKeyboardRemove())
+                    elif CheckMinusDebt(PersonId, message.chat.id, debtValue, userName):
+                        msg = bot.reply_to(message,
+                                           'Воу-воу, ви хочете видалити більше, чим вам винні. Введіть суму ще раз, яку хочете списати з боргу.')
+                        bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
+                    else:
+                        RemoveExactDebt(PersonId, message.chat.id, debtValue, userName)
+                        msg = bot.reply_to(message, 'Борг успішно відняно.', reply_markup=types.ReplyKeyboardRemove())
+                except:
                     msg = bot.reply_to(message,
-                                       'Воу-воу, ви хочете видалити більше, чим вам винні. Введіть суму ще раз, яку хочете списати з боргу.')
+                                       'Значення повинно містити лише цифри (без пробілів) (У разі додавання (числа до мільйона) ще знак "+"), введіть значення боргу ще раз')
                     bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
-                else:
-                    RemoveExactDebt(PersonId, message.chat.id, debtValue, userName)
-                    msg = bot.reply_to(message, 'Борг успішно відняно.', reply_markup=types.ReplyKeyboardRemove())
             else:
                 msg = bot.reply_to(message,
                                    'Значення повинно містити лише цифри (без пробілів) (У разі додавання (числа до мільйона) ще знак "+"), введіть значення боргу ще раз')
@@ -418,16 +423,25 @@ def add_sum(message, userName):
                 bot.register_next_step_handler(msg, add_sum, userName)
             else:
                 if not CheckLoneLinnes(message.from_user.id, message.chat.id):
-                    AddDebtForAll(message.from_user.id, message.chat.id, float(list[1]))
-                    msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
-                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                    item1 = types.KeyboardButton("✅ Так")
-                    item2 = types.KeyboardButton("⛔ Ні")
-                    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
-                    markup.row(item1, item2)
-                    markup.row(item3)
-                    msg = bot.reply_to(message, 'Скидались не всі, але більше чим одна людина?', reply_markup=markup)
-                    bot.register_next_step_handler(msg, response_sum_exact, userName)
+                    continueController = True
+                    try:
+                        AddDebtForAll(message.from_user.id, message.chat.id, float(list[1]))
+                    except:
+                        continueController = False
+                        msg = bot.reply_to(message,
+                                           'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
+                        bot.register_next_step_handler(msg, add_sum, userName)
+                    if continueController:
+                        msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
+                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                        item1 = types.KeyboardButton("✅ Так")
+                        item2 = types.KeyboardButton("⛔ Ні")
+                        item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                        markup.row(item1, item2)
+                        markup.row(item3)
+                        msg = bot.reply_to(message, 'Скидались не всі, але більше чим одна людина?',
+                                           reply_markup=markup)
+                        bot.register_next_step_handler(msg, response_sum_exact, userName)
                 elif CheckLoneLinnes(message.from_user.id,
                                      message.chat.id) == "Ти скидаєшся сам з собою, знайди собі друзів":
                     bot.reply_to(message, 'Ти скидаєшся сам з собою, знайди собі друзів', reply_markup=types.ReplyKeyboardRemove())
@@ -524,22 +538,30 @@ def handle_list_sum(message, listperson, userName):
                                    'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
                 bot.register_next_step_handler(msg, handle_list_sum, userName)
             else:
+                continueController = True
                 i = 0
                 if len(listperson) == 1 and message.from_user.id == getUserIdByUserName(listperson[0]):
                     msg = bot.reply_to(message,
                                            'Нахріна ти сам собі борг додаєш? У даному випадку тобі винні гроші. Спробуй ще раз')
                     bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
                 else:
-                    AddDebtForGroupNotAll(message.from_user.id, message.chat.id, list[1], listperson)
-                    msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
-                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                    item1 = types.KeyboardButton("✅ Так")
-                    item2 = types.KeyboardButton("⛔ Ні")
-                    item3 = types.KeyboardButton("🛑 Відмінити операцію?")
-                    markup.row(item1, item2)
-                    markup.row(item3)
-                    msg = bot.reply_to(message, 'Людина брала окремий товар?', reply_markup=markup)
-                    bot.register_next_step_handler(msg, response_sum_one, userName)
+                    try:
+                        AddDebtForGroupNotAll(message.from_user.id, message.chat.id, list[1], listperson)
+                    except:
+                       continueController = False
+                       msg = bot.reply_to(message,
+                                          'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
+                       bot.register_next_step_handler(msg, handle_list_sum, userName)
+                    if continueController:
+                        msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
+                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                        item1 = types.KeyboardButton("✅ Так")
+                        item2 = types.KeyboardButton("⛔ Ні")
+                        item3 = types.KeyboardButton("🛑 Відмінити операцію?")
+                        markup.row(item1, item2)
+                        markup.row(item3)
+                        msg = bot.reply_to(message, 'Людина брала окремий товар?', reply_markup=markup)
+                        bot.register_next_step_handler(msg, response_sum_one, userName)
     else:
         msg = bot.reply_to(message,
                            'Індульгенцію на відповідь має лише @' + userName + ". Впишіть суму, на яку скидались люди")
@@ -627,8 +649,15 @@ def handle_list_sum_for_one(message, listperson, userName):
                             bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
                             break
                         else:
-                            AddDebtForOne(message.from_user.id, message.chat.id, listsum[i],
-                                          getUserIdByUserName(listperson[i]))
+                            try:
+                                AddDebtForOne(message.from_user.id, message.chat.id, listsum[i],
+                                              getUserIdByUserName(listperson[i]))
+                            except:
+                                continueController = False
+                                msg = bot.reply_to(message,
+                                                   'Сума повинна містити лише цифри (У разі додавання (числа до мільйона) ще знак "+"), введіть суму ще раз')
+                                bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
+                                break
                         i = i + 1
                     if continueController:
                         msg = bot.reply_to(message, f'Суму добавлено' + '\n' + '\n' + ShowData(message))
