@@ -675,7 +675,7 @@ def handle_list_sum_for_one(message, listperson, userName):
 #     item2 = types.KeyboardButton("Показати список Masters")
 #     markup.add(item1)
 #     markup.add(item2)
-#     bot.reply_to(message, 'Виберіть,що вам потрібно', reply_markup=markup)
+#     bot.reply_to(message, 'Виберіть,що вам потрібно!', reply_markup=markup)
 
 
 @server.route('/' + TOKEN, methods=['POST'])
