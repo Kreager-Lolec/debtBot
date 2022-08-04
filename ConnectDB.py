@@ -215,7 +215,7 @@ def AddDebtForAll(PersonId,ChatId,DebtValue):
            SELECT CountUsers FROM CHATS WHERE ChatId = {ChatId}
        ''')
     CountUsers = mycursor.fetchone()[0]
-    print("base: " + CountUsers)
+    print("base: " + str(CountUsers))
     mycursor.execute(f'''
                     SELECT * FROM PERSONS
                 ''')
