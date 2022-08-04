@@ -1,0 +1,2 @@
+API_KEY = '5548605297:AAEmaget5JzGE14JS2d8LOe7dexfHhcQ0O0'
+DB_URI = 'postgres://pgmxtjyggbmoha:4c2b453d028b7478bc3ca6f0d04dc6a479933deea9f698ce8a57d64de0247288@ec2-44-205-64-253.compute-1.amazonaws.com:5432/d2v6h660ugekd8'
