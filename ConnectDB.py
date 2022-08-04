@@ -446,6 +446,7 @@ def ShowData(message):
             users += "|| Борг: "
             users += str(GetDebt(row[0],ChatId))
             users += "\n"
+            users += "\n"
             # print(row)
     # print(users)
     if users == "":
