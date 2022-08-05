@@ -368,7 +368,9 @@ def response(message):
         listboba = ['@kreager','@Barik_superman','@mihailik_panchuk']
         bot.reply_to(message,random.choice(listboba))
     elif text == '@kreager':
-        msg = bot.send_photo(chat_id=message.chat.id, photo=open('Kreager Hi.jpg', 'rb'))
+        bot.send_message(message.chat.id, "От'єбіться, він знаходиться на відпочинку в іншому культурному місті. А поки ви можете глянуту, як проходить цей відпочинок на наступному відео: ")
+        bot.send_video(chat_id=message.chat.id, video=open('bearsitsnexttoguy.mp4', 'rb'), supports_streaming=True)
+        # msg = bot.send_photo(chat_id=message.chat.id, photo=open('Kreager Hi.jpg', 'rb'))
     elif text == 'Ненавиджу нігерів':
         bot.send_message(message.chat.id, 'Чо так?')
     elif text == '@mihailik_panchuk':
