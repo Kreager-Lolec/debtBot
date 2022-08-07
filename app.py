@@ -452,7 +452,7 @@ def add_sum(message, userName):
                         item3 = types.KeyboardButton("🛑 Відмінити операцію?")
                         markup.row(item1, item2)
                         markup.row(item3)
-                        msg = bot.reply_to(message, 'Скидались не всі, але більше чим одна людина?',
+                        msg = bot.reply_to(message, 'Частина людей скидалась?',
                                            reply_markup=markup)
                         bot.register_next_step_handler(msg, response_sum_exact, userName)
                 elif CheckLoneLinnes(message.from_user.id,
