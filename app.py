@@ -486,7 +486,7 @@ def response_sum_exact(message, userName):
             item3 = types.KeyboardButton("🛑 Відмінити операцію?")
             markup.row(item1, item2)
             markup.row(item3)
-            msg = bot.reply_to(message, 'Ви оплачували людині окремі (її) товари?', reply_markup=markup)
+            msg = bot.reply_to(message, 'Ви оплачували людям окремі (їх) товари?', reply_markup=markup)
             bot.register_next_step_handler(msg, response_sum_one, userName)
         elif message.text == "🛑 Відмінити операцію?":
             bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
@@ -573,7 +573,7 @@ def handle_list_sum(message, listperson, userName):
                         item3 = types.KeyboardButton("🛑 Відмінити операцію?")
                         markup.row(item1, item2)
                         markup.row(item3)
-                        msg = bot.reply_to(message, 'Ви оплачували людині окремі (її) товари?', reply_markup=markup)
+                        msg = bot.reply_to(message, 'Ви оплачували людям окремі (їх) товари?', reply_markup=markup)
                         bot.register_next_step_handler(msg, response_sum_one, userName)
     else:
         msg = bot.reply_to(message,
@@ -587,7 +587,7 @@ def response_sum_one(message, userName):
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item3 = types.KeyboardButton("🛑 Відмінити операцію?")
             markup.row(item3)
-            msg = bot.reply_to(message, 'Впишіть людей, які скидались через знак "/"',
+            msg = bot.reply_to(message, 'Впишіть людей, яким ви оплачували товар через знак "/"',
                                reply_markup=types.ReplyKeyboardRemove())
             msg_content = str(msg.text).replace(" ", "/")
             # print(msg_content)
@@ -680,7 +680,7 @@ def handle_list_sum_for_one(message, listperson, userName):
                         item3 = types.KeyboardButton("🛑 Відмінити операцію?")
                         markup.row(item1, item2)
                         markup.row(item3)
-                        msg = bot.reply_to(message, 'Можливо потрібно вписати ще когось?', reply_markup=markup)
+                        msg = bot.reply_to(message, 'Можливо ви оплачували ще комусь окремі (його/її/їх) товари?', reply_markup=markup)
                         bot.register_next_step_handler(msg, response_sum_one, userName)
                 else:
                     msg = bot.reply_to(message,
