@@ -321,7 +321,7 @@ def responsesum(message, userName):
             item3 = types.KeyboardButton("🛑 Відмінити операцію?")
             markup.row(item1, item2)
             markup.row(item3)
-            msg = bot.reply_to(message, 'Скидались не всі, але більше чим одна людина?', reply_markup=markup)
+            msg = bot.reply_to(message, 'Частина людей з групи скидалась?', reply_markup=markup)
             bot.register_next_step_handler(msg, response_sum_exact, userName)
         elif message.text == "🛑 Відмінити операцію?":
             bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
@@ -368,9 +368,9 @@ def response(message):
         listboba = ['@kreager','@Barik_superman','@mihailik_panchuk']
         bot.reply_to(message,random.choice(listboba))
     elif text == '@kreager':
-        bot.send_message(message.chat.id, "От'єбіться, він знаходиться на відпочинку в іншому культурному місті. А поки ви можете глянуту, як проходить цей відпочинок на наступному відео: ")
-        bot.send_video(chat_id=message.chat.id, video=open('bearsitsnexttoguy.mp4', 'rb'), supports_streaming=True)
-        # msg = bot.send_photo(chat_id=message.chat.id, photo=open('Kreager Hi.jpg', 'rb'))
+        # bot.send_message(message.chat.id, "От'єбіться, він знаходиться на відпочинку в іншому культурному місті. А поки ви можете глянуту, як проходить цей відпочинок на наступному відео: ")
+        # bot.send_video(chat_id=message.chat.id, video=open('bearsitsnexttoguy.mp4', 'rb'), supports_streaming=True)
+        msg = bot.send_photo(chat_id=message.chat.id, photo=open('Kreager Hi.jpg', 'rb'))
     elif text == 'Ненавиджу нігерів':
         bot.send_message(message.chat.id, 'Чо так?')
     elif text == '@mihailik_panchuk':
@@ -452,7 +452,7 @@ def add_sum(message, userName):
                         item3 = types.KeyboardButton("🛑 Відмінити операцію?")
                         markup.row(item1, item2)
                         markup.row(item3)
-                        msg = bot.reply_to(message, 'Частина людей скидалась?',
+                        msg = bot.reply_to(message, 'Частина людей з групи скидалась?',
                                            reply_markup=markup)
                         bot.register_next_step_handler(msg, response_sum_exact, userName)
                 elif CheckLoneLinnes(message.from_user.id,
