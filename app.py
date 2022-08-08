@@ -486,7 +486,7 @@ def response_sum_exact(message, userName):
             item3 = types.KeyboardButton("🛑 Відмінити операцію?")
             markup.row(item1, item2)
             markup.row(item3)
-            msg = bot.reply_to(message, 'Ви оплачували людям окремі товари?', reply_markup=markup)
+            msg = bot.reply_to(message, 'Ви оплачували людині окремі (її) товари?', reply_markup=markup)
             bot.register_next_step_handler(msg, response_sum_one, userName)
         elif message.text == "🛑 Відмінити операцію?":
             bot.reply_to(message, 'Як знаєте.', reply_markup=types.ReplyKeyboardRemove())
