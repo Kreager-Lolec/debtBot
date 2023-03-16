@@ -1,0 +1,14 @@
+# fly.toml file generated for debtbot on 2023-01-16T17:36:05+02:00
+
+app = "debtbot"
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[build]
+  builder = "heroku/buildpacks:latest"
+
+[env]
+  PORT = "8080"
+
+[experimental]
+  auto_rollback = true
