@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for debtbot on 2025-03-02T20:50:41+02:00
+# fly.toml app configuration file generated for debtbot on 2025-03-04T01:14:46+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = 'debtbot'
-primary_region = 'fra'
+primary_region = 'waw'
 kill_signal = 'SIGINT'
 kill_timeout = '5s'
 
@@ -13,6 +13,9 @@ kill_timeout = '5s'
 
 [env]
   PORT = '8080'
+
+[scale]
+  count = 1
 
 [[services]]
   protocol = 'tcp'
@@ -34,6 +37,4 @@ kill_timeout = '5s'
     soft_limit = 20
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 1
+  size = 'shared-cpu-1x'

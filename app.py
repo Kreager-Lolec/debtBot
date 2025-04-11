@@ -25,13 +25,13 @@ scheduler.start()
 @bot.message_handler(commands=['start'])
 def start(message):
     welcome = getWelcomeAccoringToHours()
-    logging.info(welcome)
+    print(welcome)
     bot.reply_to(message, welcome + ", пані та панове, я бот, який буде керувати вашими боргами. ")
 
 
 def getCurrentHour():
     # utchour = datetime.now()
-    # logging.info("Utc hour" + str(datetime.now()))
+    # print("Utc hour" + str(datetime.now()))
     # if utchour.hour == 21:
     #     current_hour = 23
     # elif utchour.hour == 22:
@@ -42,7 +42,7 @@ def getCurrentHour():
     #     current_hour = 2
     # else:
     #     current_hour = utchour.hour + 2
-    # logging.info(current_hour)
+    # print(current_hour)
     # return current_hour
 
     from_zone = tz.tzutc()
@@ -50,7 +50,7 @@ def getCurrentHour():
     utc = datetime.utcnow()
     utc = utc.replace(tzinfo=from_zone)
     current_hour = utc.astimezone(to_zone)
-    logging.info(current_hour.hour)
+    print(current_hour.hour)
     # now = datetime.utcnow()
     # if now.hour == 22:
     #     current_hour = 1
@@ -227,7 +227,7 @@ def vote(message, userName, purposeOfVoting):
     if userName == message.from_user.username:
         if message.text == "🛑 Відмінити операцію!":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         elif list[0]:
             number = round(float(list[1]))
@@ -273,7 +273,7 @@ def callback_query(call: types.CallbackQuery):
             text=f"Користувач @{getCreatorByChatId(call.message.chat.id)} хоче встановити новий ліміт боргу: {getPurposeByChatId(call.message.chat.id)} грн при поточному - {getDebtLimitValue(call.message.chat.id)} грн. Прошу проголосувати. Рішення буде ухвалене або відхилене за наявності абсолютної більшості ( {str(floor(int(getCountOfActiveUsers(call.message.chat.id)) * 0.5) + 1)} )",
             chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=markup)
     except:
-        logging.info("Same text")
+        print("Same text")
     if CheckUser(call.from_user.id, call.message.chat.id):
         if checkIfPersonVotes(call.from_user.id, call.message.chat.id):
             bot.reply_to(call.message,
@@ -322,7 +322,7 @@ def callback_query(call: types.CallbackQuery):
             text=f"Користувач @{getCreatorByChatId(call.message.chat.id)} хоче встановити новий ліміт боргу: {getPurposeByChatId(call.message.chat.id)} грн при поточному - {getDebtLimitValue(call.message.chat.id)} грн. Прошу проголосувати. Рішення буде ухвалене або відхилене за наявності абсолютної більшості ( {str(floor(int(getCountOfActiveUsers(call.message.chat.id)) * 0.5) + 1)} )",
             chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=markup)
     except:
-        logging.info("Same text")
+        print("Same text")
     if CheckUser(call.from_user.id, call.message.chat.id):
         if checkIfPersonVotes(call.from_user.id, call.message.chat.id):
             msg = bot.reply_to(call.message,
@@ -370,7 +370,7 @@ def callback_query(call: types.CallbackQuery):
             text=f"Користувач @{getCreatorByChatId(call.message.chat.id)} хоче встановити новий ліміт часу: {getPurposeByChatId(call.message.chat.id)} хв при поточному - {getTimeLimitValue(call.message.chat.id)} хв. Прошу проголосувати. Рішення буде ухвалене або відхилене за наявності абсолютної більшості ( {str(floor(int(getCountOfActiveUsers(call.message.chat.id)) * 0.5) + 1)} )",
             chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=markup)
     except:
-        logging.info("Same text")
+        print("Same text")
     if CheckUser(call.from_user.id, call.message.chat.id):
         if checkIfPersonVotes(call.from_user.id, call.message.chat.id):
             bot.reply_to(call.message,
@@ -419,7 +419,7 @@ def callback_query(call: types.CallbackQuery):
             text=f"Користувач @{getCreatorByChatId(call.message.chat.id)} хоче встановити новий ліміт часу: {getPurposeByChatId(call.message.chat.id)} хв при поточному - {getTimeLimitValue(call.message.chat.id)} хв. Прошу проголосувати. Рішення буде ухвалене або відхилене за наявності абсолютної більшості ( {str(floor(int(getCountOfActiveUsers(call.message.chat.id)) * 0.5) + 1)} )",
             chat_id=call.message.chat.id, message_id=call.message.message_id, reply_markup=markup)
     except:
-        logging.info("Same text")
+        print("Same text")
     if CheckUser(call.from_user.id, call.message.chat.id):
         if checkIfPersonVotes(call.from_user.id, call.message.chat.id):
             msg = bot.reply_to(call.message,
@@ -458,7 +458,7 @@ def addmat(message, userName):
     if userName == message.from_user.username:
         if message.text == "🛑 Відмінити операцію!":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         elif len(str(message.text)) <= maxNumOfSymsForAnegdot:
             if checkIfExistsMat(str(message.text)):
@@ -488,7 +488,7 @@ def removeMat(message, userName):
     if userName == message.from_user.username:
         if message.text == "🛑 Відмінити операцію!":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         elif len(str(message.text)) <= maxNumOfSymsForAnegdot:
             if not checkIfExistsMat(str(message.text)):
@@ -538,7 +538,7 @@ def responseRemoveDebt(message, userName):
     if message.from_user.username == userName:
         if message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             PersonUserName = message.text
@@ -584,7 +584,7 @@ def choiceDelete(message, userName, PersonId):
             bot.register_next_step_handler(msg, removeExactDebt, userName, PersonId)
         elif message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, choiceDelete, userName, PersonId)
@@ -597,7 +597,7 @@ def removeExactDebt(message, userName, PersonId):
     if message.from_user.username == userName:
         if message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             list = checkValidationString(message.text)
@@ -670,11 +670,11 @@ def deletecard(message, userName):
                              reply_markup=types.ReplyKeyboardRemove())
         elif message.text == "⛔ Ні":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         elif message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, deletecard, userName)
@@ -687,13 +687,13 @@ def addcardtodb(message, userName):
     if message.from_user.username == userName:
         if message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             regex = re.compile('[a-zA-Zа-яА-Я].+[:]\\d{4}\\d{4}\\d{4}\\d{4}$')
             fullstring = str(message.text).replace(" ", "")
             match = regex.match(fullstring)
-            logging.info(match)
+            print(match)
             if match is None:
                 msg = bot.reply_to(message,
                                    'Не коректний запис. Приклад: Моно : 9898 8475 3984 4895 (Можна додати лише один '
@@ -734,13 +734,13 @@ def responsecard(message, userName):
             markup.row(item3)
             msg = bot.reply_to(message, 'Впишіть ваші реквізити', reply_markup=markup)
             bot.register_next_step_handler(msg, addcardtodb, userName)
-            logging.info(msg.text)
+            print(msg.text)
         elif message.text == "⛔ Ні":
             bot.reply_to(message, f'\t\t\tРеквізити додано' + '\n' + ShowData(message),
                          reply_markup=types.ReplyKeyboardRemove())
         elif message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, responsecard, userName)
@@ -755,9 +755,9 @@ def responsesum(message, userName):
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item3 = types.KeyboardButton("🛑 Відмінити операцію")
             markup.row(item3)
+            # ⬇️ Цей варіант ТАКИЙ САМИЙ, як у тебе робочий
             msg = bot.reply_to(message, 'Впишіть кількість коштів', reply_markup=markup)
             bot.register_next_step_handler(msg, add_sum, userName)
-            logging.info(msg.text)
         elif message.text == "⛔ Ні":
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             item1 = types.KeyboardButton("✅ Так")
@@ -769,7 +769,7 @@ def responsesum(message, userName):
             bot.register_next_step_handler(msg, response_sum_exact, userName)
         elif message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, responsesum, userName)
@@ -791,7 +791,7 @@ def response(message):
 def checkValidationString(message):
     fullstring = message
     ifValid = True
-    warningmessage = "Непередбачувана помилка"
+    warningmessage = ""
     if message == " ":
         ifValid = False
     else:
@@ -816,10 +816,10 @@ def simplifyExpession(fullstring):
         if len(subList) > 2:
             result = prioritiescalculation(subEquation, subList)
             equation = equation.replace("(" + subEquation + ")", result)
-            logging.info(subEquation + " = " + result + "\nNow equation is " + equation + "\n----------------------------------")
+            print(subEquation + " = " + result + "\nNow equation is " + equation + "\n----------------------------------")
         elif len(subList) <= 2:
             equation = equation.replace("(" + subEquation + ")", subEquation)
-            logging.info(
+            print(
                 subEquation + " = " + subEquation + "\nNow equation is " + equation + "\n----------------------------------")
         i += 1
     while "^" in equation or "*" in equation or "/" in equation or "+" in equation or "-" in equation:
@@ -827,7 +827,7 @@ def simplifyExpession(fullstring):
         if len(subeqarr) >= 3:
             tsq = equation
             equation = prioritiescalculation(equation, subeqarr)
-            logging.info(
+            print(
                 tsq + " = " + equation + "\nNow equation is " + equation + "\n----------------------------------")
         elif len(subeqarr) == 2:
             break
@@ -836,7 +836,7 @@ def simplifyExpession(fullstring):
             if equation.count("+") > 0:
                 equation = equation.replace("+", "")
             equation = equation.replace("-0", "0")
-            logging.info(
+            print(
                 tsq + " = " + equation + "\nNow equation is " + equation + "\n----------------------------------")
         if len(subeqarr) <= 1:
             if float(equation) < 0:
@@ -862,7 +862,7 @@ def ExtractSubEquation(equation):
     bracketindexes = bracketindex(equation)
     leftbracket = bracketindexes[0]
     rightbracket = bracketindexes[1]
-    logging.info("Left bracket: " + str(leftbracket) + " Right bracket: " + str(rightbracket))
+    print("Left bracket: " + str(leftbracket) + " Right bracket: " + str(rightbracket))
     subequation = equation[leftbracket:rightbracket].strip(")").strip("(")
     tsq = subequation
     subList = validateequation(tsq)
@@ -886,8 +886,8 @@ def validateequation(eq):
     resulteq = resulteq.replace("  ", " ")
     resulteq = resulteq.strip(" ")
     listresult = resulteq.split(" ")
-    # logging.info("List result: ")
-    # logging.info(listresult)
+    # print("List result: ")
+    # print(listresult)
     if len(listresult) == 2 and listresult[0] != "/" and listresult != "*":
         listresult[0] = listresult[0] + listresult[1]
         listresult.pop(1)
@@ -897,49 +897,49 @@ def validateequation(eq):
             listresult[i + 2] = "-" + listresult[i + 2]
             listresult.pop(i + 1)
             for item in listresult:
-                logging.info(item)
+                print(item)
         elif listresult[i] == "^" and listresult[i + 1] == "+":
             listresult.pop(i + 1)
             for item in listresult:
-                logging.info(item)
+                print(item)
         if listresult[i] == "*" and listresult[i + 1] == "-":
             listresult[i + 2] = "-" + listresult[i + 2]
             listresult.pop(i + 1)
             for item in listresult:
-                logging.info(item)
+                print(item)
         if listresult[i] == "/" and listresult[i + 1] == "-":
             listresult[i + 2] = "-" + listresult[i + 2]
             listresult.pop(i + 1)
             for item in listresult:
-                logging.info(item)
+                print(item)
         i += 1
     i = 1
     while i < len(listresult):
         if listresult[i] == "+" and listresult[i + 1] == "-":
             listresult.pop(i)
             for item in listresult:
-                logging.info(item)
+                print(item)
         elif listresult[i] == "-" and listresult[i + 1] == "+":
             listresult.pop(i + 1)
             for item in listresult:
-                logging.info(item)
+                print(item)
         if listresult[i] == "*" and listresult[i + 1] == "+":
             listresult.pop(i + 1)
             for item in listresult:
-                logging.info(item)
+                print(item)
         if listresult[i] == "/" and listresult[i + 1] == "+":
             listresult.pop(i + 1)
             for item in listresult:
-                logging.info(item)
+                print(item)
         i += 1
-    logging.info("Local arythmetic will be such: " + resulteq)
+    print("Local arythmetic will be such: " + resulteq)
     return listresult
 
 
 def calculationtwo(leftnumber, rightnumber, operation):
     result = 0
-    logging.info("Left number: " + leftnumber)
-    logging.info("Right number: " + rightnumber)
+    print("Left number: " + leftnumber)
+    print("Right number: " + rightnumber)
     lnum = float(leftnumber)
     rnum = float(rightnumber)
     if operation == "+":
@@ -953,14 +953,14 @@ def calculationtwo(leftnumber, rightnumber, operation):
     elif operation == "^":
         result = pow(lnum,rnum)
     else:
-        logging.info("Invalid operation. Sign " + operation)
+        print("Invalid operation. Sign " + operation)
     if "e" in str(result):
         result = round(result, 4)
     return result
 
 
 def prioritiescalculation(mathStr,mathparts):
-    logging.info("Length mathparts: " + str(len(mathparts)))
+    print("Length mathparts: " + str(len(mathparts)))
     if "^" in mathStr:
         i = 1
         while i < len(mathparts):
@@ -974,13 +974,13 @@ def prioritiescalculation(mathStr,mathparts):
                 mathparts.pop(i - 1)
                 mathparts.pop(i - 1)
                 mathparts.pop(i - 1)
-                logging.info("Math parts: ")
-                logging.info(mathparts)
+                print("Math parts: ")
+                print(mathparts)
                 mathparts.insert(i - 1, str(res))
-                logging.info("Sub equation: " + subeq)
-                logging.info("Current equation before replace: " + mathStr)
+                print("Sub equation: " + subeq)
+                print("Current equation before replace: " + mathStr)
                 mathStr = mathStr.replace(subeq, str(res))
-                logging.info("Current equation: " + mathStr)
+                print("Current equation: " + mathStr)
             i += 1
     if "*" in mathStr or "/" in mathStr:
         i = 1
@@ -997,12 +997,12 @@ def prioritiescalculation(mathStr,mathparts):
                 mathparts.pop(i - 1)
                 mathparts.pop(i - 1)
                 mathparts.insert(i - 1, str(res))
-                logging.info("Math parts: ")
-                logging.info(mathparts)
-                logging.info("Sub equation: " + subeq)
-                logging.info("Current equation before replace: " + mathStr)
+                print("Math parts: ")
+                print(mathparts)
+                print("Sub equation: " + subeq)
+                print("Current equation before replace: " + mathStr)
                 mathStr = mathStr.replace(subeq, str(res))
-                logging.info("Current equation: " + mathStr)
+                print("Current equation: " + mathStr)
             else:
                 i += 1
     if "+" in mathStr or "-" in mathStr:
@@ -1020,64 +1020,77 @@ def prioritiescalculation(mathStr,mathparts):
                 mathparts.pop(i - 1)
                 mathparts.pop(i - 1)
                 mathparts.insert(i - 1, str(res))
-                logging.info("Math parts: ")
-                logging.info(mathparts)
-                logging.info("Sub equation: " + subeq)
-                logging.info("Current equation before replace: " + mathStr)
+                print("Math parts: ")
+                print(mathparts)
+                print("Sub equation: " + subeq)
+                print("Current equation before replace: " + mathStr)
                 mathStr = mathStr.replace(subeq, str(res))
-                logging.info("Current equation: " + mathStr)
+                print("Current equation: " + mathStr)
             else:
                 i += 1
     return mathStr
 
 
 def add_sum(message, userName):
-    if message.from_user.username == userName:
-        if message.text == "🛑 Відмінити операцію":
-            farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
-            bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
-        else:
-            list = checkValidationString(message.text)
-            if not list[0]:
-                msg = bot.reply_to(message, list[2])
-                bot.register_next_step_handler(msg, add_sum, userName)
+    try:
+        print("🚀 Викликано add_sum")
+        print("message.text:", message.text)
+        print("message.from_user.username:", message.from_user.username)
+        print("Очікувано:", userName)
+        if message.from_user.username == userName:
+            if message.text == "🛑 Відмінити операцію":
+                farewell = getFarewellAccoringToHours()
+                print(farewell)
+                bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
             else:
-                if not CheckLoneLinnes(message.chat.id):
-                    continueController = True
-                    try:
-                        result = AddDebtForAll(message.from_user.id, message.chat.id, float(list[1]))
-                        if "Перевищено ліміт боргу: " in result:
+                list = checkValidationString(message.text)
+                print("list: ")
+                print(list)
+                if not list[0]:
+                    msg = bot.reply_to(message, list[2])
+                    bot.register_next_step_handler(msg, add_sum, userName)
+                else:
+                    print("✅ Вхід у блок ELSE")
+                    print("CheckLoneLinnes: ")
+                    print(CheckLoneLinnes(message.chat.id))
+                    if not CheckLoneLinnes(message.chat.id):
+                        continueController = True
+                        try:
+                            result = AddDebtForAll(message.from_user.id, message.chat.id, float(list[1]))
+                            if "Перевищено ліміт боргу: " in result:
+                                continueController = False
+                                msg = bot.reply_to(message, result + "; Спробуйте ще раз")
+                                bot.register_next_step_handler(msg, add_sum, userName)
+                            else:
+                                bot.reply_to(message, result)
+                        except:
                             continueController = False
-                            msg = bot.reply_to(message, result + "; Спробуйте ще раз")
+                            msg = bot.reply_to(message,
+                                               "Вираз повинен містити лише цифри, арифметичні операції та дужки, спробуйте ще раз.")
                             bot.register_next_step_handler(msg, add_sum, userName)
-                        else:
-                            bot.reply_to(message, result)
-                    except:
-                        continueController = False
-                        msg = bot.reply_to(message,
-                                           "Вираз повинен містити лише цифри, арифметичні операції та дужки, спробуйте ще раз.")
-                        bot.register_next_step_handler(msg, add_sum, userName)
-                    if continueController:
-                        msg = bot.reply_to(message, f'Кошти добавлено' + '\n' + '\n' + ShowData(message))
-                        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                        item1 = types.KeyboardButton("✅ Так")
-                        item2 = types.KeyboardButton("⛔ Ні")
-                        item3 = types.KeyboardButton("🛑 Відмінити операцію")
-                        markup.row(item1, item2)
-                        markup.row(item3)
-                        msg = bot.reply_to(message, 'Частина людей з групи скидалась?',
-                                           reply_markup=markup)
-                        bot.register_next_step_handler(msg, response_sum_exact, userName)
-                elif CheckLoneLinnes(message.chat.id) == "Ти скидаєшся сам з собою, знайди собі друзів":
-                    bot.reply_to(message, 'Ти скидаєшся сам з собою, знайди собі друзів',
-                                    reply_markup=types.ReplyKeyboardRemove())
-                # elif CheckLoneLinnes(message.chat.id) == "Для початку увійдіть в гільдію: команда /entertheparty":
-                #     bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty',
-                #                  reply_markup=types.ReplyKeyboardRemove())
-    else:
-        msg = bot.reply_to(message, 'Індульгенцію на ввід кількості коштів має лише @' + userName + ". Просимо його зробите це.")
-        bot.register_next_step_handler(msg, add_sum, userName)
+                        if continueController:
+                            msg = bot.reply_to(message, f'Кошти добавлено' + '\n' + '\n' + ShowData(message))
+                            markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                            item1 = types.KeyboardButton("✅ Так")
+                            item2 = types.KeyboardButton("⛔ Ні")
+                            item3 = types.KeyboardButton("🛑 Відмінити операцію")
+                            markup.row(item1, item2)
+                            markup.row(item3)
+                            msg = bot.reply_to(message, 'Частина людей з групи скидалась?',
+                                               reply_markup=markup)
+                            bot.register_next_step_handler(msg, response_sum_exact, userName)
+                    elif CheckLoneLinnes(message.chat.id) == "Ти скидаєшся сам з собою, знайди собі друзів":
+                        bot.reply_to(message, 'Ти скидаєшся сам з собою, знайди собі друзів',
+                                     reply_markup=types.ReplyKeyboardRemove())
+                    # elif CheckLoneLinnes(message.chat.id) == "Для початку увійдіть в гільдію: команда /entertheparty":
+                    #     bot.reply_to(message, f'Для початку увійдіть в гільдію: команда /entertheparty',
+                    #                  reply_markup=types.ReplyKeyboardRemove())
+        else:
+            msg = bot.reply_to(message,
+                               'Індульгенцію на ввід кількості коштів має лише @' + userName + ". Просимо його зробите це.")
+            bot.register_next_step_handler(msg, add_sum, userName)
+    except Exception as e:
+            print("❌ Виняток:", e)
 
 
 def response_sum_exact(message, userName):
@@ -1089,7 +1102,7 @@ def response_sum_exact(message, userName):
             msg = bot.reply_to(message, 'Впишіть людей, які скидались через знак "/"',
                                reply_markup=markup)
             msg_content = str(msg.text).replace(" ", "/")
-            # logging.info( )
+            # print( )
             # listperson = str(msg_content).split("/")
             bot.register_next_step_handler(msg, handle_list_person, userName)
         elif message.text == "⛔ Ні":
@@ -1103,7 +1116,7 @@ def response_sum_exact(message, userName):
             bot.register_next_step_handler(msg, response_sum_one, userName)
         elif message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, response_sum_exact, userName)
@@ -1116,7 +1129,7 @@ def handle_list_person(message, userName):
     if message.from_user.username == userName:
         if message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             # msg = bot.reply_to(message, 'Впишіть відповідну кількість коштів для кожної людини через пробіл або знак "|"',
@@ -1150,8 +1163,8 @@ def checkIfPersonsExist(listperson, message):
             countExistance = countExistance + 1
         else:
             notExist = notExist + " @" + row
-    logging.info(notExist)
-    logging.info(countExistance)
+    print(notExist)
+    print(countExistance)
     if countExistance == len(listperson):
         return True, notExist
     else:
@@ -1162,7 +1175,7 @@ def handle_list_sum(message, listperson, userName):
     if message.from_user.username == userName:
         if message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             try:
@@ -1221,16 +1234,16 @@ def response_sum_one(message, userName):
             msg = bot.reply_to(message, 'Впишіть людей, яким ви оплачували товар через знак "/"',
                                reply_markup=markup)
             msg_content = str(msg.text).replace(" ", "/")
-            # logging.info(msg_content)
+            # print(msg_content)
             # listperson = str(msg_content).split("/")
             bot.register_next_step_handler(msg, handle_list_person_for_one, userName)
         elif message.text == "⛔ Ні":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         elif message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             bot.register_next_step_handler(message, response_sum_one, userName)
@@ -1243,14 +1256,13 @@ def handle_list_person_for_one(message, userName):
     if message.from_user.username == userName:
         if message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             # msg = bot.reply_to(message, 'Впишіть відповідну кількість коштів для кожної людини з допомогою знаку "|"',
             #                    reply_markup=types.ReplyKeyboardRemove())
-            msg_content = str(message.text).replace(" ", "/")
-            msg_content = msg_content.replace("@", "")
-            listperson = str(msg_content).split("/")
+            clean_text = message.text.replace("@", "").replace(" ", "")
+            listperson = [name for name in clean_text.split("/") if name.strip() != ""]
             list = checkIfPersonsExist(listperson, message)
             if list[0]:
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -1273,12 +1285,12 @@ def handle_list_sum_for_one(message, listperson, userName):
     if message.from_user.username == userName:
         if message.text == "🛑 Відмінити операцію":
             farewell = getFarewellAccoringToHours()
-            logging.info(farewell)
+            print(farewell)
             bot.reply_to(message, farewell, reply_markup=types.ReplyKeyboardRemove())
         else:
             listsum = str(message.text).strip(" ")
             listsum = str(listsum).split("|")
-            logging.info(listsum)
+            print(listsum)
             i = 0
             for row in listsum:
                 list = checkValidationString(row)
@@ -1343,16 +1355,16 @@ def handle_list_sum_for_one(message, listperson, userName):
 
 
 def main():
-    logging.info('Бот Стартує!!!')
+    print('Бот Стартує!!!')
     #DropTable()
     CreateTable()
     #InsertDeletedData()
     # ShowData()
-    # ShowChats()
+    ShowChats()
     try:
         bot.infinity_polling()
     except:
-        logging.info("Not today")
+        print("Not today")
 
 
 if __name__ == "__main__":

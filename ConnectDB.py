@@ -222,6 +222,11 @@ def CheckLoneLinnes(ChatId):
            SELECT CountUsers FROM CHATS WHERE ChatId = {ChatId}
        ''')
     CountUsers = mycursor.fetchone()[0]
+    print("Fetchone: ")
+    print(mycursor.fetchone())
+    print("ChatId: ")
+    print(ChatId)
+    print("CountOfUsers: ")
     print(CountUsers)
     if CountUsers == 1:
         return "Ти скидаєшся сам з собою, знайди собі друзів"
